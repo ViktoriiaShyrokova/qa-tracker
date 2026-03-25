@@ -1,5 +1,6 @@
 package org.qatracker;
 
+import org.qatracker.exception.InvalidTestCaseException;
 import org.qatracker.exception.TestCaseNotFoundException;
 import org.qatracker.model.BugReport;
 import org.qatracker.model.TestCase;
@@ -9,6 +10,7 @@ import org.qatracker.repository.TestCaseRepository;
 import org.qatracker.service.BugService;
 import org.qatracker.service.TestCaseService;
 import org.qatracker.service.TestRunService;
+import org.qatracker.validation.TestCaseValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +31,17 @@ public class Main {
         // ── TestCaseService: центральный реестр ──────────────────────────────
         TestCaseService tcService = new TestCaseService();
 
-        TestCase tc1 = new TestCase("Login test", "CRITICAL");
-        TestCase tc2 = new TestCase("Payment test", "CRITICAL");
-        TestCase tc3 = new TestCase("Profile test", "MEDIUM");
-        TestCase tc4 = new TestCase("Search test", "LOW");
-        TestCase tc5 = new TestCase("Logout test", "HIGH");
+        TestCase tc1 = new TestCase("Login test", "PENDING");
+        TestCase tc2 = new TestCase("Payment test", "PASSED");
+        TestCase tc3 = new TestCase("Profile test", "FAILED");
+        TestCase tc4 = new TestCase("Search test", "BLOCKED");
+        TestCase tc5 = new TestCase("Logout test", "PASSED");
+
+        try {
+            TestCaseValidator.validateOrThrow(tc1);
+        } catch (InvalidTestCaseException e){
+            System.out.println(e.getErrors());
+        }
 
         tcService.add(tc1);
         tcService.add(tc2);
