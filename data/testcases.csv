@@ -1,0 +1,6 @@
+id,title,status,priority,assignedTo
+1,Login test,PENDING,CRITICAL,Admin
+2,Payment test,PASSED,CRITICAL,Buh
+3,Profile test,BLOCKED,MEDIUM,Manager
+4,Search test,FAILED,LOW,Manager
+5,Logout test,FAILED,HIGH,Admin
