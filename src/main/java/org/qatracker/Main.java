@@ -10,6 +10,7 @@ import org.qatracker.repository.TestCaseRepository;
 import org.qatracker.service.BugService;
 import org.qatracker.service.TestCaseService;
 import org.qatracker.service.TestRunService;
+import org.qatracker.util.TestDataFileGenerator;
 import org.qatracker.validation.TestCaseValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,14 @@ public class Main {
 
         logger.info("=== QA Tracker finished ===");
 
+
+        TestDataFileGenerator.generate("data//tcgenerator.csv",100);
+        try {
+
+            TestDataFileGenerator.readStats("data//tcgenerator.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

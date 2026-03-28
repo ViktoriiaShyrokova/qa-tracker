@@ -25,6 +25,15 @@ public class BugReport {
         this.createdAt  = LocalDateTime.now();
     }
 
+    public BugReport(int id, int testCaseId, String title, String severity, String status, LocalDateTime createdAt) {
+        this.id = id;
+        this.testCaseId = testCaseId;
+        this.title = title;
+        this.severity = severity;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
+
     public int           getId()         { return id; }
     public int           getTestCaseId() { return testCaseId; }
     public String        getTitle()      { return title; }

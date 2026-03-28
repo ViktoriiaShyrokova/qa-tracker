@@ -13,9 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 // TestCaseRepository - персистентность тест-кейсов через CSV
-public class TestCaseRepository {
+public class TestCaseRepository implements Repository<TestCase, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(TestCaseRepository.class);
 
     private static final String HEADER = "id,title,status,priority,assignedTo";
@@ -106,21 +107,19 @@ public class TestCaseRepository {
         }
     }
 
-    private String toCsv(TestCase tc) {
+    public String toCsv(TestCase tc) {
         return String.join(",",
                 String.valueOf(tc.getId()),
                 escapeCsv(tc.getTitle()),
                 tc.getStatus(),
                 tc.getPriority(),
                 tc.getAssignedTo() != null ? escapeCsv(tc.getAssignedTo()) : ""
-
+//                tc.getAssignedTo() != null ? tc.getAssignedTo() : ""
         );
-//        return String.format("%d,%s,%s,%s,%s",
-//                tc.getId(),tc.getTitle(),tc.getStatus(),tc.getPriority(),tc.getAssignedTo() != null ? tc.getAssignedTo() : "");
     }
 
     // Экранирование: если содержит запятую или кавычку - обернуть в кавычки
-    private String escapeCsv(String s) {
+    public static String escapeCsv(String s) {
         if (s == null) return "";
         if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
             return "\"" + s.replace("\"", "\"\"") + "\"";
@@ -128,11 +127,51 @@ public class TestCaseRepository {
         return s;
     }
 
-    private String unescapeCsv(String s) {
+    private static String unescapeCsv(String s) {
         if (s.startsWith("\"") && s.endsWith("\"") && s.length() >= 2) {
             return s.substring(1, s.length() - 1).replace("\"\"", "\"");
         }
         return s;
+    }
+
+    @Override
+    public void save(TestCase entity) throws IOException {
+        // Сохранить одну запись - дописать в конец файла
+        // Или перегрузить saveAll для пакетного сохранения
+        saveAll(List.of(entity));
+    }
+
+    @Override
+    public Optional<TestCase> findById(Integer id) {
+        try {
+            return loadAll().stream()
+                    .filter(tc -> tc.getId() == id)
+                    .findFirst();
+
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<TestCase> findAll() {
+        try { return loadAll(); }
+        catch (IOException e) { return List.of(); }
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+        try {
+            List<TestCase> all = loadAll();
+            boolean removed = all.removeIf(tc -> tc.getId() == id);
+            if (removed) saveAll(all);
+            return removed;
+        } catch (IOException e) { return false; }
+    }
+
+    @Override
+    public int count() {
+        return findAll().size();
     }
 }
 
