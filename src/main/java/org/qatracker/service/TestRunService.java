@@ -40,13 +40,13 @@ public class TestRunService {
     // Группировка по статусу — одна строка вместо цикла
     public Map<String, List<TestCase>> groupByStatus() {
         return testCaseService.findAll().stream()
-                .collect(Collectors.groupingBy(TestCase::getStatus));
+                .collect(Collectors.groupingBy(tc -> tc.getStatus().name()));
     }
 
     // Количество по каждому статусу
     public Map<String, Long> countByStatus() {
         return testCaseService.findAll().stream()
-                .collect(Collectors.groupingBy(TestCase::getStatus, Collectors.counting()));
+                .collect(Collectors.groupingBy(tc -> tc.getStatus().name(), Collectors.counting()));
     }
 
     // Итоговый отчёт одной строкой

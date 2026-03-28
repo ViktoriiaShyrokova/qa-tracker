@@ -2,10 +2,8 @@ package org.qatracker;
 
 import org.qatracker.exception.InvalidTestCaseException;
 import org.qatracker.exception.TestCaseNotFoundException;
-import org.qatracker.model.BugReport;
-import org.qatracker.model.TestCase;
+import org.qatracker.model.*;
 
-import org.qatracker.model.TestSuite;
 import org.qatracker.repository.TestCaseRepository;
 import org.qatracker.service.BugService;
 import org.qatracker.service.TestCaseService;
@@ -21,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.qatracker.model.Priority.*;
+
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -32,11 +32,23 @@ public class Main {
         // ── TestCaseService: центральный реестр ──────────────────────────────
         TestCaseService tcService = new TestCaseService();
 
-        TestCase tc1 = new TestCase("Login test", "PENDING");
-        TestCase tc2 = new TestCase("Payment test", "PASSED");
-        TestCase tc3 = new TestCase("Profile test", "FAILED");
-        TestCase tc4 = new TestCase("Search test", "BLOCKED");
-        TestCase tc5 = new TestCase("Logout test", "PASSED");
+        TestCase tc1 = new TestCase("Login test",   CRITICAL); // не строка!
+        TestCase tc2 = new TestCase("Payment test", HIGH);
+
+        tc1.setStatus(Status.PASSED);
+        tc2.setStatus(Status.FAILED);
+
+        System.out.println(tc1.getStatus().getIcon() + " " + tc1.getTitle());
+// ✓ Login test
+
+// Switch в Main для команд
+        String command = "report";
+        switch (command) {
+            case "list"   -> System.out.println("Listing tests...");
+            case "report" -> System.out.println("Generating report...");
+            case "save"   -> System.out.println("Saving data...");
+            default       -> System.out.println("Unknown command: " + command);
+        }
 
         try {
             TestCaseValidator.validateOrThrow(tc1);
@@ -46,14 +58,11 @@ public class Main {
 
         tcService.add(tc1);
         tcService.add(tc2);
-        tcService.add(tc3);
-        tcService.add(tc4);
-        tcService.add(tc5);
 
         // Имитируем результаты
-        tc1.setStatus("PASSED");
-        tc2.setStatus("FAILED");
-        tc3.setStatus("PASSED");
+        tc1.setStatus(Status.FAILED);
+        tc2.setStatus(Status.BLOCKED);
+
         // tc4, tc5 остаются PENDING
 
         // Поиск по ID

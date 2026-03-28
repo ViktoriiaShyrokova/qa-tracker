@@ -111,8 +111,8 @@ public class TestCaseRepository implements Repository<TestCase, Integer> {
         return String.join(",",
                 String.valueOf(tc.getId()),
                 escapeCsv(tc.getTitle()),
-                tc.getStatus(),
-                tc.getPriority(),
+                tc.getStatus().name(),
+                tc.getPriority().name(),
                 tc.getAssignedTo() != null ? escapeCsv(tc.getAssignedTo()) : ""
 //                tc.getAssignedTo() != null ? tc.getAssignedTo() : ""
         );

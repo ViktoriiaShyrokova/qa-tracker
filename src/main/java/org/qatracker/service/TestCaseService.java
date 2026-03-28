@@ -58,14 +58,14 @@ public class TestCaseService {
 //    }
     public Map<String, List<TestCase>> groupByStatus() {
         return storage.values().stream()
-                .collect(Collectors.groupingBy(TestCase::getStatus));
+                .collect(Collectors.groupingBy(tc -> tc.getStatus().name()));
     }
 
     // Статистика по приоритетам
     public Map<String, Long> countByPriority() {
         Map<String, Long> counts = new LinkedHashMap<>();
         for (TestCase tc : storage.values()) {
-            counts.merge(tc.getPriority(), 1L, Long::sum);
+            counts.merge(tc.getPriority().name(), 1L, Long::sum);
         }
         return counts;
     }

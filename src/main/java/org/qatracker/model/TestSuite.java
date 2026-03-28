@@ -41,7 +41,7 @@ public class TestSuite implements Iterable<TestCase> {
     }
 
     public int getBlockedCount() {
-        return (int) testCases.stream().filter(TestCase::isBlocked).count();
+        return (int) testCases.stream().filter(tc -> tc.getStatus().equals(Status.BLOCKED)).count();
     }
 
     public String getName() {
@@ -92,7 +92,7 @@ public class TestSuite implements Iterable<TestCase> {
         private TestCase findNextMatching() {
             while (originalIterator.hasNext()) {
                 TestCase tc = originalIterator.next();
-                if (statusFilter == null || statusFilter.equalsIgnoreCase(tc.getStatus())) {
+                if (statusFilter == null || statusFilter.equalsIgnoreCase(tc.getStatus().name())) {
                     return tc;
                 }
             }

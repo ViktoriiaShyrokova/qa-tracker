@@ -1,5 +1,7 @@
 package org.qatracker.util;
 
+import org.qatracker.model.Priority;
+import org.qatracker.model.Status;
 import org.qatracker.model.TestCase;
 
 import java.io.BufferedWriter;
@@ -31,20 +33,22 @@ public class TestDataFileGenerator {
             if (csv.getParent() != null) {
                 Files.createDirectories(csv.getParent());
             }
-            String[] statuses = {"PENDING", "PASSED", "FAILED", "BLOCKED"};
-            String[] priorities = {"LOW", "MEDIUM", "HIGH", "CRITICAL"};
+//            String[] statuses = {"PENDING", "PASSED", "FAILED", "BLOCKED"};
+//            String[] priorities = {"LOW", "MEDIUM", "HIGH", "CRITICAL"};
+            Status[] statuses = Status.values();
+            Priority[] priorities = Priority.values();
             IntStream.rangeClosed(1, count)
                     .mapToObj(i -> {
                         String title = "Auto Test #" + i;
-                        String status = statuses[i % statuses.length];
-                        String priority = priorities[i % priorities.length];
+                       Status status = statuses[i % statuses.length];
+                        Priority priority = priorities[i % priorities.length];
                         return new TestCase(i, title, status, priority);
                     })
                     .map(tc -> String.join(",",
                             String.valueOf(tc.getId()),
                             escapeCsv(tc.getTitle()),
-                            tc.getStatus(),
-                            tc.getPriority()))
+                            tc.getStatus().name(),
+                            tc.getPriority().name()))
                     .forEach(line -> {
                                 try {
                                     writer.write(line);

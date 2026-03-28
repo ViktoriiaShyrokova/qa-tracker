@@ -1,12 +1,15 @@
 package org.qatracker.model;
 
 import org.qatracker.util.IdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 // TestCase — основная сущность нашего трекера.
 // Представляет один тест-кейс: что тестируем, каков статус, кто отвечает.
 public class TestCase {
+    private static final Logger log = LoggerFactory.getLogger(TestCase.class);
     private final int      id;
     private String         title;
     private Status         status;    // было: String status
@@ -30,7 +33,25 @@ public class TestCase {
         this.assignedTo = assignedTo;
     }
 
+    public TestCase(int id, String title, Status status, Priority priority) {
+        this.id = id;
+        this.title = title;
+        this.status = status;
+        this.priority = priority;
+    }
+
+
     // Геттеры возвращают enum
+
+    public int getId() {
+        return id;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public String getAssignedTo() {
+        return assignedTo;
+    }
     public Status   getStatus()   { return status; }
     public Priority getPriority() { return priority; }
 
