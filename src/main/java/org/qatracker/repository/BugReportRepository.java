@@ -2,6 +2,8 @@ package org.qatracker.repository;
 
 import org.qatracker.exception.InvalidTestDataException;
 import org.qatracker.model.BugReport;
+import org.qatracker.model.BugSeverity;
+import org.qatracker.model.BugStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,8 +92,8 @@ public class BugReportRepository implements Repository<BugReport, Integer> {
             int id = Integer.parseInt(parts[0]);
             int testCaseId = Integer.parseInt(parts[1]);
             String title = unescapeCsv(parts[2]);
-            String severity = parts[3].trim();
-            String status = parts[4].trim();
+            BugSeverity severity = BugSeverity.fromString(parts[3].trim());
+            BugStatus status = BugStatus.fromString(parts[4].trim());
             LocalDateTime createdAt = LocalDateTime.parse(parts[5].trim());
 
             return new BugReport(id, testCaseId, title, severity, status, createdAt);
@@ -114,8 +116,8 @@ public class BugReportRepository implements Repository<BugReport, Integer> {
                 String.valueOf(bug.getId()),
                 String.valueOf(bug.getTestCaseId()),
                 escapeCsv(bug.getTitle()),
-                bug.getSeverity(),
-                bug.getStatus(),
+                bug.getSeverity().name(),
+                bug.getStatus().name(),
                 bug.getCreatedAt().toString()
         );
 

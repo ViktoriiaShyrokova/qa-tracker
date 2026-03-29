@@ -5,9 +5,7 @@ import org.qatracker.exception.TestCaseNotFoundException;
 import org.qatracker.model.*;
 
 import org.qatracker.repository.TestCaseRepository;
-import org.qatracker.service.BugService;
-import org.qatracker.service.TestCaseService;
-import org.qatracker.service.TestRunService;
+import org.qatracker.service.*;
 import org.qatracker.util.TestDataFileGenerator;
 import org.qatracker.validation.TestCaseValidator;
 import org.slf4j.Logger;
@@ -17,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.qatracker.model.Priority.*;
@@ -32,7 +32,7 @@ public class Main {
         // ── TestCaseService: центральный реестр ──────────────────────────────
         TestCaseService tcService = new TestCaseService();
 
-        TestCase tc1 = new TestCase("Login test",   CRITICAL); // не строка!
+        TestCase tc1 = new TestCase("Login test", CRITICAL); // не строка!
         TestCase tc2 = new TestCase("Payment test", HIGH);
 
         tc1.setStatus(Status.PASSED);
@@ -44,15 +44,15 @@ public class Main {
 // Switch в Main для команд
         String command = "report";
         switch (command) {
-            case "list"   -> System.out.println("Listing tests...");
+            case "list" -> System.out.println("Listing tests...");
             case "report" -> System.out.println("Generating report...");
-            case "save"   -> System.out.println("Saving data...");
-            default       -> System.out.println("Unknown command: " + command);
+            case "save" -> System.out.println("Saving data...");
+            default -> System.out.println("Unknown command: " + command);
         }
 
         try {
             TestCaseValidator.validateOrThrow(tc1);
-        } catch (InvalidTestCaseException e){
+        } catch (InvalidTestCaseException e) {
             System.out.println(e.getErrors());
         }
 
@@ -112,12 +112,12 @@ public class Main {
         BugService bugService = new BugService(tcService);
 
         // Создаём баг для упавшего теста (tc2 = Payment test, FAILED)
-        BugReport bug1 = bugService.createBug(tc2.getId(), "Payment timeout on staging", "CRITICAL");
+        BugReport bug1 = bugService.createBug(tc2.getId(), "Payment timeout on staging", BugSeverity.CRITICAL);
         System.out.println("Created: " + bug1);
 
         // Попытка создать баг для несуществующего теста → исключение
         try {
-            bugService.createBug(999, "Ghost bug", "LOW");
+            bugService.createBug(999, "Ghost bug", BugSeverity.LOW);
         } catch (TestCaseNotFoundException e) {
             System.out.println("Expected error: " + e.getMessage());
         }
@@ -132,13 +132,60 @@ public class Main {
         logger.info("=== QA Tracker finished ===");
 
 
-        TestDataFileGenerator.generate("data//tcgenerator.csv",100);
+        TestDataFileGenerator.generate("data//tcgenerator.csv", 100);
         try {
 
             TestDataFileGenerator.readStats("data//tcgenerator.csv");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        System.out.println("=".repeat(50));
+        System.out.println("TestPriority");
+        System.out.println(PriorityRouter.route(TestPriority.SMOKE));
+        System.out.println(PriorityRouter.route(TestPriority.SANITY));
+        System.out.println(PriorityRouter.route(TestPriority.REGRESSION));
+        System.out.println(PriorityRouter.route(TestPriority.PERFORMANCE));
+        System.out.println("=".repeat(50));
+        System.out.println(PriorityRouter.estimateMinutes(TestPriority.SMOKE));
+        System.out.println(PriorityRouter.estimateMinutes(TestPriority.SANITY));
+        System.out.println(PriorityRouter.estimateMinutes(TestPriority.REGRESSION));
+        System.out.println(PriorityRouter.estimateMinutes(TestPriority.PERFORMANCE));
+
+
+        System.out.println("=========BugSeverity===========");
+
+        List<BugReport> listBugs = List.of(new BugReport(11, "Test1", BugSeverity.CRITICAL),
+                new BugReport(12, "Test2", BugSeverity.MEDIUM),
+                new BugReport(13, "Test3", BugSeverity.HIGH),
+                new BugReport(14, "Test4", BugSeverity.LOW),
+                new BugReport(15, "Test5", BugSeverity.CRITICAL));
+//        BugReport br1 = new BugReport(11,"Test1",BugSeverity.CRITICAL);
+//        BugReport br2 = new BugReport(12,"Test2",BugSeverity.MEDIUM);
+//        BugReport br3 = new BugReport(13,"Test3",BugSeverity.HIGH);
+//        BugReport br4 = new BugReport(14,"Test4",BugSeverity.LOW);
+//        BugReport br5 = new BugReport(15,"Test5",BugSeverity.CRITICAL);
+
+        List<BugReport> urgentBugs = BugPrioritizer.getUrgent(listBugs);
+        urgentBugs.forEach(bugReport -> {
+            System.out.println(bugReport);
+            System.out.println("SLA: " + bugReport.getSeverity().getSlaBreach());
+        });
+
+        System.out.println("=".repeat(100));
+        TestCase tc3 =new TestCase("Login test", CRITICAL);
+        tcService.add(tc3);
+        BugReport br1 = bugService.createBug(tc3.getId(),"Test1", BugSeverity.CRITICAL);
+        System.out.println("br1 id=" + br1.getId());
+        System.out.println(br1.getStatus());
+        bugService.advanceStatus(br1.getId());
+        System.out.println(br1.getStatus());
+        bugService.advanceStatus(br1.getId());
+        System.out.println(br1.getStatus());
+        bugService.advanceStatus(br1.getId());
+        System.out.println(br1.getStatus());
+        bugService.advanceStatus(br1.getId());
+        System.out.println(br1.getStatus());
 
     }
 }

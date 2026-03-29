@@ -10,22 +10,22 @@ public class BugReport {
     private final int           id;
     private final int           testCaseId; // к какому тесту относится
     private String              title;
-    private String              severity;   // LOW, MEDIUM, HIGH, CRITICAL
-    private String              status;     // OPEN, IN_PROGRESS, FIXED, CLOSED
+    private BugSeverity             severity;   // LOW, MEDIUM, HIGH, CRITICAL
+    private BugStatus              status;     // OPEN, IN_PROGRESS, FIXED, CLOSED
     private final LocalDateTime createdAt;
 
     private static int nextId = 1;
 
-    public BugReport(int testCaseId, String title, String severity) {
+    public BugReport(int testCaseId, String title, BugSeverity severity) {
         this.id         = nextId++;
         this.testCaseId = testCaseId;
         this.title      = title;
         this.severity   = severity;
-        this.status     = "OPEN";
+        this.status     = BugStatus.OPEN;
         this.createdAt  = LocalDateTime.now();
     }
 
-    public BugReport(int id, int testCaseId, String title, String severity, String status, LocalDateTime createdAt) {
+    public BugReport(int id, int testCaseId, String title, BugSeverity severity, BugStatus status, LocalDateTime createdAt) {
         this.id = id;
         this.testCaseId = testCaseId;
         this.title = title;
@@ -37,14 +37,15 @@ public class BugReport {
     public int           getId()         { return id; }
     public int           getTestCaseId() { return testCaseId; }
     public String        getTitle()      { return title; }
-    public String        getSeverity()   { return severity; }
-    public String        getStatus()     { return status; }
+    public BugSeverity        getSeverity()   { return severity; }
+    public BugStatus        getStatus()     { return status; }
     public LocalDateTime getCreatedAt()  { return createdAt; }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(BugStatus status) { this.status = status; }
 
     public boolean isOpen() {
-        return "OPEN".equals(status) || "IN_PROGRESS".equals(status);
+
+        return status.equals(BugStatus.OPEN);
     }
 
     public static void resetIdCounter() { nextId = 1; }

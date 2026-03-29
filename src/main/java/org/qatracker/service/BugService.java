@@ -1,7 +1,7 @@
 package org.qatracker.service;
+
 import org.qatracker.exception.TestCaseNotFoundException;
-import org.qatracker.model.BugReport;
-import org.qatracker.model.TestCase;
+import org.qatracker.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,20 +11,20 @@ public class BugService {
 
     private static final Logger logger = LoggerFactory.getLogger(BugService.class);
 
-    private final Map<Integer, BugReport> bugs           = new LinkedHashMap<>();
-    private final TestCaseService         testCaseService;
+    private final Map<Integer, BugReport> bugs = new LinkedHashMap<>();
+    private final TestCaseService testCaseService;
 
     public BugService(TestCaseService testCaseService) {
         this.testCaseService = testCaseService;
     }
 
     // Создать баг для упавшего тест-кейса
-    public BugReport createBug(int testCaseId, String title, String severity) {
+    public BugReport createBug(int testCaseId, String title, BugSeverity severity) {
         // orElseThrow: если тест-кейс не найден — бросит TestCaseNotFoundException
         TestCase tc = testCaseService.findById(testCaseId)
                 .orElseThrow(() -> new TestCaseNotFoundException(testCaseId));
 
-        if (!"FAILED".equals(tc.getStatus())) {
+        if (!Status.FAILED.equals(tc.getStatus())) {
             logger.warn("Creating bug for non-failed TestCase id={}, status={}",
                     testCaseId, tc.getStatus());
         }
@@ -53,9 +53,20 @@ public class BugService {
             logger.error("Cannot close: BugReport not found id={}", id);
             throw new NoSuchElementException("BugReport not found: id=" + id);
         }
-        bug.setStatus("CLOSED");
+        bug.setStatus(BugStatus.CLOSED);
         logger.info("Bug closed: id={}", id);
     }
 
-    public int size() { return bugs.size(); }
+    public int size() {
+        return bugs.size();
+    }
+
+    public void advanceStatus(int id) {
+        BugReport bug = bugs.get(id);
+        if (bug == null) {
+            logger.error("Cannot close: BugReport not found id={}", id);
+            throw new NoSuchElementException("BugReport not found: id=" + id);
+        }
+        bug.setStatus(bug.getStatus().next());
+    }
 }
