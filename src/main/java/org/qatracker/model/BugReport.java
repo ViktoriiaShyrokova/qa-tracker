@@ -1,11 +1,13 @@
 package org.qatracker.model;
 
+import org.qatracker.service.BugService;
+
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.*;
 
 // BugReport — баг, привязанный к упавшему TestCase.
 // Создаётся когда тест получил статус FAILED.
-public class BugReport {
+public class BugReport implements Comparable<BugReport>{
 
     private final int           id;
     private final int           testCaseId; // к какому тесту относится
@@ -66,4 +68,31 @@ public class BugReport {
 
     @Override
     public int hashCode() { return Objects.hash(id, title); }
+
+    @Override
+    public int compareTo(BugReport other) {
+        int bySeverity = Integer.compare(this.severity.getWeight(),other.severity.getWeight());
+
+        return bySeverity != 0 ? bySeverity : createdAt.compareTo(other.createdAt);
+    }
+
+
+    // 1. changing existing list. Collections.sort returns void
+//    public static List<BugReport> getSortedOpenBugs(BugService bugService) {
+//      List<BugReport> bugs = bugService.getOpenBugs();
+//      Collections.sort(bugs);
+//      return bugs;
+//    }
+    //2. creating new list ( using Stream)
+    public static List<BugReport> getSortedOpenBugs(BugService bugService) {
+        return bugService.getOpenBugs().stream()
+                .sorted()
+                .toList();
+    }
+    public static Optional<BugReport> getMostUrgent(List<BugReport> bugs) {
+        return bugs.stream()
+                .min(Comparator.naturalOrder());
+    }
+
+
 }

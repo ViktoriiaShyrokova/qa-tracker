@@ -8,7 +8,7 @@ import java.util.Objects;
 
 // TestCase — основная сущность нашего трекера.
 // Представляет один тест-кейс: что тестируем, каков статус, кто отвечает.
-public class TestCase {
+public class TestCase implements Comparable<TestCase>{
     private static final Logger log = LoggerFactory.getLogger(TestCase.class);
     private final int      id;
     private String         title;
@@ -73,54 +73,7 @@ public class TestCase {
     }
 //    // ── Конструкторы (занятие 1) ─────────────────────────────────────────────
 //
-//    public TestCase(int id, String title, String status, String priority) {
-//        this.id = id;
-//        this.title = title;
-//        this.status = status;
-//        this.priority = priority;
-//    }
-//
-//    // Основной конструктор: id и title обязательны, остальное — по умолчанию
-//    public TestCase(int id, String title) {
-//        this.id       = id;
-//        setTitle(title);             // через сеттер — валидация работает с самого начала
-//        this.status   = "PENDING";   // новый тест всегда начинает как PENDING
-//        this.priority = "MEDIUM";    // приоритет по умолчанию
-//    }
-//
-//    public TestCase(String title, String status) {
-//        this.id     = IdGenerator.nextTestCaseId();
-//        this.title  = title;
-//        this.status = status;
-//    }
-//
-//    // Расширенный конструктор: задаём приоритет сразу
-//    // this(id, title) — вызов первого конструктора (избегаем дублирования кода)
-//    public TestCase(int id, String title, String priority) {
-//        this(id, title);             // делегируем основному конструктору
-//        this.priority = priority;
-//    }
-//
-//    // Полный конструктор: все поля
-//    public TestCase(int id, String title, String status, String priority, String assignedTo) {
-//        this.id         = id;
-//        setTitle(title);
-//        setStatus(status);
-//        setPriority(priority);
-//        this.assignedTo = assignedTo;
-//    }
-//
-//    // Конструктор копирования: создать копию существующего TestCase
-//    public TestCase(TestCase other) {
-//        this(other.id, other.title, other.status, other.priority, other.assignedTo);
-//    }
-//
-//    // ── Геттеры: только чтение, без изменений ────────────────────────────────────
-//    public int    getId()         { return id; }
-//    public String getTitle()      { return title; }
-//    public String getStatus()     { return status; }
-//    public String getPriority()   { return priority; }
-//    public String getAssignedTo() { return assignedTo; }
+
 
 // ── Сеттеры с валидацией ─────────────────────────────────────────────────────
 
@@ -132,41 +85,10 @@ public class TestCase {
         this.title = title.trim(); // убираем лишние пробелы
     }
 
-//    public void setStatus(String status) {
-//        // Валидация: только допустимые значения статуса
-//        if (!isValidStatus(status)) {
-//            throw new IllegalArgumentException(
-//                    "Invalid status: '" + status + "'. Allowed: PENDING, PASSED, FAILED, BLOCKED"
-//            );
-//        }
-//        this.status = status;
-//    }
-//
-//    public void setPriority(String priority) {
-//        if (!isValidPriority(priority)) {
-//            throw new IllegalArgumentException(
-//                    "Invalid priority: '" + priority + "'. Allowed: LOW, MEDIUM, HIGH, CRITICAL"
-//            );
-//        }
-//        this.priority = priority;
-//    }
-
     public void setAssignedTo(String assignedTo) {
         // assignedTo может быть null (тест не назначен никому)
         this.assignedTo = assignedTo;
     }
-
-    // toString() — читаемое строковое представление объекта.
-    // Вызывается автоматически при System.out.println(tc) и в логах.
-    // Без этого метода вы увидите бесполезное "TestCase@7852e922"
-//    @Override
-//    public String toString() {
-//        return String.format(
-//                "TestCase{id=%d, title='%s', status=%s, priority=%s, assignedTo=%s}",
-//                id, title, status, priority,
-//                assignedTo != null ? assignedTo : "unassigned"
-//        );
-//    }
 
 
     // equals() — сравнение СОДЕРЖИМОГО двух объектов.
@@ -220,5 +142,15 @@ public class TestCase {
                 p.equals("LOW")    || p.equals("MEDIUM") ||
                         p.equals("HIGH")   || p.equals("CRITICAL")
         );
+    }
+    @Override
+    public int compareTo(TestCase other) {
+        int byPriority = Integer.compare(
+                this.priority.getWeight(),
+                other.priority.getWeight()
+        );
+        return byPriority != 0
+                ? byPriority
+                : Integer.compare(this.id, other.id);
     }
 }

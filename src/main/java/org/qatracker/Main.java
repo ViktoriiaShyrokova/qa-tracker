@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.qatracker.model.Priority.*;
 
@@ -187,6 +188,25 @@ public class Main {
         bugService.advanceStatus(br1.getId());
         System.out.println(br1.getStatus());
 
+
+        System.out.println("=====-====Comparing Bugs==========");
+        BugReport bugReport1 = new BugReport(200,200,"Bug1",BugSeverity.LOW,BugStatus.OPEN,LocalDateTime.now());
+        BugReport bugReport2 = new BugReport(202,200,"Bug2",BugSeverity.HIGH,BugStatus.IN_PROGRESS,LocalDateTime.now().minusDays(25));
+        BugReport bugReport3 = new BugReport(203,200,"Bug3",BugSeverity.CRITICAL,BugStatus.OPEN,LocalDateTime.now().minusDays(5));
+        BugReport bugReport4 = new BugReport(204,200,"Bug4",BugSeverity.CRITICAL,BugStatus.OPEN,LocalDateTime.now().minusDays(10));
+        BugReport bugReport5 = new BugReport(205,200,"Bug5",BugSeverity.MEDIUM,BugStatus.OPEN,LocalDateTime.now().minusDays(30));
+        List<BugReport> bugReportList = List.of(bugReport1,bugReport2,bugReport3,bugReport4,bugReport5);
+        bugService.createBug(tc3.getId(),"Bug1",BugSeverity.LOW );
+        bugService.createBug(tc3.getId(),"Bug2",BugSeverity.HIGH);
+        bugService.createBug(tc3.getId(),"Bug3",BugSeverity.CRITICAL );
+        bugService.createBug(tc3.getId(),"Bug4",BugSeverity.CRITICAL );
+        bugService.createBug(tc3.getId(),"Bug5",BugSeverity.MEDIUM);
+
+        for (BugReport bug : BugReport.getSortedOpenBugs(bugService)) {
+            System.out.println(bug);
+        }
+        Optional<BugReport> mostUrgent = BugReport.getMostUrgent(bugReportList);
+        System.out.println(mostUrgent);
     }
 }
 
