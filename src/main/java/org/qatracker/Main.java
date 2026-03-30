@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -174,9 +175,9 @@ public class Main {
         });
 
         System.out.println("=".repeat(100));
-        TestCase tc3 =new TestCase("Login test", CRITICAL);
+        TestCase tc3 = new TestCase("Login test", CRITICAL);
         tcService.add(tc3);
-        BugReport br1 = bugService.createBug(tc3.getId(),"Test1", BugSeverity.CRITICAL);
+        BugReport br1 = bugService.createBug(tc3.getId(), "Test1", BugSeverity.CRITICAL);
         System.out.println("br1 id=" + br1.getId());
         System.out.println(br1.getStatus());
         bugService.advanceStatus(br1.getId());
@@ -190,23 +191,66 @@ public class Main {
 
 
         System.out.println("=====-====Comparing Bugs==========");
-        BugReport bugReport1 = new BugReport(200,200,"Bug1",BugSeverity.LOW,BugStatus.OPEN,LocalDateTime.now());
-        BugReport bugReport2 = new BugReport(202,200,"Bug2",BugSeverity.HIGH,BugStatus.IN_PROGRESS,LocalDateTime.now().minusDays(25));
-        BugReport bugReport3 = new BugReport(203,200,"Bug3",BugSeverity.CRITICAL,BugStatus.OPEN,LocalDateTime.now().minusDays(5));
-        BugReport bugReport4 = new BugReport(204,200,"Bug4",BugSeverity.CRITICAL,BugStatus.OPEN,LocalDateTime.now().minusDays(10));
-        BugReport bugReport5 = new BugReport(205,200,"Bug5",BugSeverity.MEDIUM,BugStatus.OPEN,LocalDateTime.now().minusDays(30));
-        List<BugReport> bugReportList = List.of(bugReport1,bugReport2,bugReport3,bugReport4,bugReport5);
-        bugService.createBug(tc3.getId(),"Bug1",BugSeverity.LOW );
-        bugService.createBug(tc3.getId(),"Bug2",BugSeverity.HIGH);
-        bugService.createBug(tc3.getId(),"Bug3",BugSeverity.CRITICAL );
-        bugService.createBug(tc3.getId(),"Bug4",BugSeverity.CRITICAL );
-        bugService.createBug(tc3.getId(),"Bug5",BugSeverity.MEDIUM);
+        BugReport bugReport1 = new BugReport(200, 200, "Bug1", BugSeverity.LOW, BugStatus.OPEN, LocalDateTime.now());
+        BugReport bugReport2 = new BugReport(202, 200, "Bug2", BugSeverity.HIGH, BugStatus.IN_PROGRESS, LocalDateTime.now().minusDays(25));
+        BugReport bugReport3 = new BugReport(203, 200, "Bug3", BugSeverity.CRITICAL, BugStatus.OPEN, LocalDateTime.now().minusDays(5));
+        BugReport bugReport4 = new BugReport(204, 200, "Bug4", BugSeverity.CRITICAL, BugStatus.OPEN, LocalDateTime.now().minusDays(10));
+        BugReport bugReport5 = new BugReport(205, 200, "Bug5", BugSeverity.MEDIUM, BugStatus.OPEN, LocalDateTime.now().minusDays(30));
+        List<BugReport> bugReportList = List.of(bugReport1, bugReport2, bugReport3, bugReport4, bugReport5);
+        bugService.createBug(tc3.getId(), "Bug1", BugSeverity.LOW);
+        bugService.createBug(tc3.getId(), "Bug2", BugSeverity.HIGH);
+        bugService.createBug(tc3.getId(), "Bug3", BugSeverity.CRITICAL);
+        bugService.createBug(tc3.getId(), "Bug4", BugSeverity.CRITICAL);
+        bugService.createBug(tc3.getId(), "Bug5", BugSeverity.MEDIUM);
 
-        for (BugReport bug : BugReport.getSortedOpenBugs(bugService)) {
-            System.out.println(bug);
-        }
+        BugReport.getSortedOpenBugs(bugService).forEach(System.out::println);
+
         Optional<BugReport> mostUrgent = BugReport.getMostUrgent(bugReportList);
         System.out.println(mostUrgent);
+
+        System.out.println("=====TC comparator=======");
+        List<TestCase> tests = List.of(
+                new TestCase(1, "Login valid user", Status.PASSED, Priority.MEDIUM),
+                new TestCase(2, "Login invalid password", Status.FAILED, Priority.HIGH),
+                new TestCase(3, "Registration", Status.PENDING, Priority.LOW),
+                new TestCase(4, "Checkout", Status.BLOCKED, Priority.CRITICAL),
+                new TestCase(5, "Logout", Status.PASSED, Priority.LOW),
+                new TestCase(6, "Reset password", Status.FAILED, Priority.CRITICAL),
+                new TestCase(7, "Add to cart", Status.PENDING, Priority.MEDIUM),
+                new TestCase(8, "Remove from cart", Status.PASSED, Priority.MEDIUM),
+                new TestCase(9, "Search", Status.BLOCKED, Priority.HIGH),
+                new TestCase(10, "Profile update", Status.FAILED, Priority.LOW)
+        );
+
+
+        System.out.println("=== By Priority ===");
+        tests.stream()
+                .sorted(TestSorter.byPriority())
+                .forEach(System.out::println);
+
+
+        System.out.println("\n=== By Title ===");
+        tests.stream()
+                .sorted(TestSorter.byTitle())
+                .forEach(System.out::println);
+
+
+        System.out.println("\n=== By Status ===");
+        tests.stream()
+                .sorted(TestSorter.byStatus())
+                .forEach(System.out::println);
+
+
+        System.out.println("\n=== By Priority Then Title ===");
+        tests.stream()
+                .sorted(TestSorter.byPriorityThenTitle())
+                .forEach(System.out::println);
+
+
+        System.out.println("\n=== Top 3 IDs ===");
+
+        TestSorter.topN(tests, 3).forEach(System.out::println);
+
     }
 }
 
