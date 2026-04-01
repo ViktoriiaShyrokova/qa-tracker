@@ -4,6 +4,8 @@ import org.qatracker.exception.InvalidTestCaseException;
 import org.qatracker.exception.TestCaseNotFoundException;
 import org.qatracker.model.*;
 
+import org.qatracker.repository.InMemoryTestCaseRepo;
+import org.qatracker.repository.Repository;
 import org.qatracker.repository.TestCaseRepository;
 import org.qatracker.service.*;
 import org.qatracker.util.TestDataFileGenerator;
@@ -16,10 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.qatracker.model.Priority.*;
 
@@ -251,6 +250,21 @@ public class Main {
 
         TestSorter.topN(tests, 3).forEach(System.out::println);
 
-    }
-}
+        System.out.println("=====TC repo ===============");
 
+        InMemoryTestCaseRepo repo = new InMemoryTestCaseRepo();
+
+        tests.forEach(tc -> {
+            try {
+                repo.save(tc);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        repo.findAll().forEach(System.out::println);
+        repo.findWhere(tc -> tc.getStatus().equals(Status.PENDING)).forEach(System.out::println);
+        repo.findAllSorted(TestSorter.byTitle()).forEach(System.out::println);
+
+    }
+
+}

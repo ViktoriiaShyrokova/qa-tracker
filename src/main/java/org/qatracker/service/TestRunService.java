@@ -17,8 +17,8 @@ public class TestRunService {
     public List<TestCase> getFailedByPriority() {
         List<String> order = List.of("CRITICAL", "HIGH", "MEDIUM", "LOW");
         return testCaseService.findAll().stream()
-                .filter(tc -> "FAILED".equals(tc.getStatus()))
-                .sorted(Comparator.comparingInt(tc -> order.indexOf(tc.getPriority())))
+                .filter(tc -> "FAILED".equals(tc.getStatus().name()))
+                .sorted(Comparator.comparingInt(tc -> order.indexOf(tc.getPriority().name())))
                 .collect(Collectors.toList());
     }
 

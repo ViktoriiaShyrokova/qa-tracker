@@ -35,9 +35,13 @@ public class TestCase implements Comparable<TestCase>{
 
     public TestCase(int id, String title, Status status, Priority priority) {
         this.id = id;
-        this.title = title;
+        setTitle(title);
         this.status = status;
         this.priority = priority;
+    }
+
+    public static void resetIdCounter() {
+        IdGenerator.resetAll();
     }
 
 
@@ -55,7 +59,7 @@ public class TestCase implements Comparable<TestCase>{
     public Status   getStatus()   { return status; }
     public Priority getPriority() { return priority; }
 
-    // Сеттеры принимают enum — опечатка "CRITIKAL" не пройдёт компиляцию
+    // Сеттеры принимают enum — опечатка "CRITICAL" не пройдёт компиляцию
     public void setStatus(Status status)      { this.status   = status; }
     public void setPriority(Priority priority){ this.priority = priority; }
 
@@ -79,9 +83,8 @@ public class TestCase implements Comparable<TestCase>{
 
     public void setTitle(String title) {
         // Валидация: title не может быть пустым
-        if (title == null || title.isBlank()) {
+        if (title == null || title.isBlank() || title.trim().length() < 3)
             throw new IllegalArgumentException("Title cannot be blank");
-        }
         this.title = title.trim(); // убираем лишние пробелы
     }
 

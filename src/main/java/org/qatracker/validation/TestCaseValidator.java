@@ -5,7 +5,7 @@ import org.qatracker.model.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+
 
 public class TestCaseValidator {
 
@@ -27,7 +27,7 @@ public class TestCaseValidator {
     }
 
     public static void validateOrThrow(TestCase tc) {
-      ValidationResult result =  validate(tc);
+        ValidationResult result =  validate(tc);
         if(!result.isValid()) throw new InvalidTestCaseException(result.getErrors());
     }
 }
